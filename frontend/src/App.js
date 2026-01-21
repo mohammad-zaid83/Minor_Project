@@ -246,13 +246,13 @@ const TeacherDashboard = () => {
 };
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalUsers: 156,
     activeToday: 89,
     totalCourses: 12,
     pendingRequests: 5,
   });
-  const [recentActivity, setRecentActivity] = useState([
+  const [recentActivity] = useState([
     {
       id: 1,
       action: "New student registered",
