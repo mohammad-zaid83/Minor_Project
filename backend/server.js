@@ -9,22 +9,28 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
-// ✅ **BEST CORS CONFIGURATION - Allow all Vercel domains**
+// ✅ **BEST CORS CONFIGURATION - With YOUR correct URLs**
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin
     if (!origin) return callback(null, true);
     
-    // Allow all Vercel domains and localhost
-    if (
-      origin.endsWith('.vercel.app') ||      // All Vercel domains
-      origin.includes('localhost:') ||        // All localhost ports
-      origin === 'http://localhost:3000'      // Specific localhost
-    ) {
+    // Allow specific frontend URLs
+    const allowedOrigins = [
+      'https://minor-project-frontend-nine.vercel.app',  // ✅ YOUR FRONTEND
+      'https://minor-project-frontend-nine.vercel.app',  // ✅ Without slash
+      'http://localhost:3000',                           // ✅ Local development
+      'https://minor-project.vercel.app',                // ✅ Old URL
+      'http://localhost:5000'                            // ✅ Backend local
+    ];
+    
+    if (allowedOrigins.includes(origin) || 
+        origin.endsWith('.vercel.app') || 
+        origin.includes('localhost:')) {
       return callback(null, true);
     }
     
-    // Block other domains
+    console.log('❌ Blocked by CORS:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -34,23 +40,27 @@ const corsOptions = {
 };
 
 // Middleware
-app.use(cors(corsOptions));  // ✅ Use cors with options
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // ✅ **Health check endpoint**
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    message: 'Student Attendance System Backend',
+    frontend: 'https://minor-project-frontend-nine.vercel.app',
+    backend: 'https://minor-project-backend-9u7l.onrender.com',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
   });
 });
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000
 })
   .then(() => console.log('✅ MongoDB Atlas Connected'))
   .catch(err => {
@@ -66,30 +76,51 @@ app.use('/api/attendance', attendanceRoutes);
 app.get('/', (req, res) => {
   res.json({
     message: '🎓 Student Attendance System API',
-    status: 'running',
     version: '1.0.0',
+    frontend: 'https://minor-project-frontend-nine.vercel.app',
+    backend: 'https://minor-project-backend-9u7l.onrender.com',
     endpoints: {
+      health: '/api/health',
       auth: '/api/auth',
       attendance: '/api/attendance',
-      health: '/api/health'
+      login: '/api/auth/login',
+      register: '/api/auth/register'
     }
+  });
+});
+
+// Test login endpoint (for testing)
+app.post('/api/test-login', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend is working!',
+    user: { id: 'test123', name: 'Test User', role: 'student' },
+    token: 'test-jwt-token-123'
   });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: 'API endpoint not found' });
+  res.status(404).json({ 
+    message: 'API endpoint not found',
+    availableEndpoints: ['/api/health', '/api/auth', '/api/attendance'] 
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: 'Internal server error' });
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running: http://localhost:${PORT}`);
-  console.log(`🌐 CORS configured: Allowing all Vercel domains and localhost`);
+  console.log(`🚀 Backend Server: http://localhost:${PORT}`);
+  console.log(`🌐 Live Backend: https://minor-project-backend-9u7l.onrender.com`);
+  console.log(`📱 Frontend: https://minor-project-frontend-nine.vercel.app`);
+  console.log(`✅ CORS enabled for Vercel and localhost`);
 });
