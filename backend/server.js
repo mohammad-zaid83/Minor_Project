@@ -9,18 +9,28 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
-// ✅ **CORRECTED CORS CONFIGURATION**
+// ✅ **BEST CORS CONFIGURATION - Allow all Vercel domains**
 const corsOptions = {
-  origin: [
-    'https://minor-project-frontend-nine.vercel.app',  // ✅ YOUR ACTUAL FRONTEND URL
-    'https://minor-project-frontend-nine.vercel.app',  // ✅ Without trailing slash
-    'http://localhost:3000',                           // ✅ Local development
-    'https://minor-project.vercel.app',                // ✅ Old URL (if exists)
-    process.env.FRONTEND_URL                           // ✅ From environment variable
-  ].filter(Boolean),                                   // ✅ Remove empty values
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow all Vercel domains and localhost
+    if (
+      origin.endsWith('.vercel.app') ||      // All Vercel domains
+      origin.includes('localhost:') ||        // All localhost ports
+      origin === 'http://localhost:3000'      // Specific localhost
+    ) {
+      return callback(null, true);
+    }
+    
+    // Block other domains
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  optionsSuccessStatus: 200
 };
 
 // Middleware
@@ -81,5 +91,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running: http://localhost:${PORT}`);
-  console.log(`🌐 Allowed origins: ${corsOptions.origin.join(', ')}`);
+  console.log(`🌐 CORS configured: Allowing all Vercel domains and localhost`);
 });
