@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ✅ CORRECT: Define API_URL at TOP LEVEL (outside component)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,8 +16,8 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Call backend login API
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      // ✅ NOW USING API_URL defined at top
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
