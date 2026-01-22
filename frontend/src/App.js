@@ -530,7 +530,7 @@ const HomePage = () => (
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
           {/* Replace emoji with logo */}
           <img
-            src="/CL(1).png"
+            src="/CollegeLogo.png"
             alt="College Logo"
             className="w-12 h-12 rounded-full object-contain"
           />
