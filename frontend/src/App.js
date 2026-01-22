@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import QRGenerator from './components/QRGenerator';
-import QRScanner from './components/QRScanner';
-import StudentReports from './components/StudentReports';
-import NotFound from './components/NotFound';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Login";
+import QRGenerator from "./components/QRGenerator";
+import QRScanner from "./components/QRScanner";
+import StudentReports from "./components/StudentReports";
+import NotFound from "./components/NotFound";
 
 // Temporary Dashboard Components
 const StudentDashboard = () => (
@@ -520,9 +520,7 @@ const HomePage = () => (
   <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex flex-col items-center justify-center p-4">
     {/* College Header */}
     <div className="text-center text-white mb-8">
-      <h1 className="text-4xl md:text-5xl font-bold mb-2">
-        ABC College of Technology
-      </h1>
+      <h1 className="text-4xl md:text-5xl font-bold mb-2">KMC University</h1>
       <p className="text-lg opacity-90">Department of Computer Applications</p>
     </div>
 
@@ -530,7 +528,12 @@ const HomePage = () => (
       {/* Project Title */}
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl text-white">📱</span>
+          {/* Replace emoji with logo */}
+          <img
+            src="/CL(1).png"
+            alt="College Logo"
+            className="w-12 h-12 rounded-full object-contain"
+          />
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Student Attendance System
@@ -584,7 +587,7 @@ const HomePage = () => (
       {/* Footer */}
       <div className="mt-8 pt-6 border-t text-center">
         <p className="text-gray-500 text-sm">
-          BCA Minor Project | Developed by [Your Name]
+          BCA Minor Project | Developed by Mohammad Zaid
         </p>
         <p className="text-gray-400 text-xs mt-1">Academic Year 2025-26</p>
       </div>
