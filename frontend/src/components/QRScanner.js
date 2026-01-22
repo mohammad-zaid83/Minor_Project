@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
+// ✅ ADD THIS LINE - MOST IMPORTANT FIX
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -53,8 +56,8 @@ const QRScanner = () => {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       
-      // Call backend to mark attendance
-      const response = await fetch('http://localhost:5000/api/attendance/scan', {
+      // ✅ FIXED: Use API_URL instead of localhost:5000
+      const response = await fetch(`${API_URL}/api/attendance/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
