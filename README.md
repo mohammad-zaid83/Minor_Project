@@ -1,26 +1,25 @@
-\# 🎓 Student Daily Attendance System Mobile App
+🎓 Student Daily Attendance System Mobile App
 
 
 
-\## 📱 Project Overview
+Project Overview
 
 A QR-Based Digital Attendance System with role-based access (Student, Teacher, Admin) developed as a BCA Minor Project.
 
 
+🚀 Live Demo
 
-\## 🚀 Live Demo
+\- Frontend: http://localhost:3000
 
-\- \*\*Frontend:\*\* http://localhost:3000
+\- Backend API: http://localhost:5000
 
-\- \*\*Backend API:\*\* http://localhost:5000
-
-\- \*\*API Docs:\*\* http://localhost:5000/
-
+\- API Docs: http://localhost:5000/
 
 
-\## ✨ Features
 
-\### 🧑‍🎓 \*\*For Students:\*\*
+✨ Features
+
+For Students:
 
 \- QR Code Scanning via Camera
 
@@ -32,7 +31,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\### 👨‍🏫 \*\*For Teachers:\*\*
+👨‍🏫For Teachers:
 
 \- Generate QR Codes for Classes
 
@@ -44,7 +43,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\### ⚙️ \*\*For Admin:\*\*
+⚙️For Admin:
 
 \- User Management
 
@@ -56,9 +55,9 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\## 🛠️ Tech Stack
+🛠️ Tech Stack
 
-\### \*\*Frontend:\*\*
+Frontend:
 
 \- React.js
 
@@ -70,7 +69,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\### \*\*Backend:\*\*
+Backend:
 
 \- Node.js
 
@@ -82,7 +81,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\### \*\*Database:\*\*
+Database:
 
 \- MongoDB Atlas (Cloud)
 
@@ -90,7 +89,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\### \*\*Tools:\*\*
+Tools:
 
 \- Postman (API Testing)
 
@@ -100,7 +99,7 @@ A QR-Based Digital Attendance System with role-based access (Student, Teacher, A
 
 
 
-\## 📁 Project Structure
+📁 Project Structure
 
 Minor\_Project/
 
@@ -160,15 +159,12 @@ Minor\_Project/
 
 
 
-text
+
+🚀 Installation \& Setup
 
 
 
-\## 🚀 Installation \& Setup
-
-
-
-\### \*\*1. Clone Repository\*\*
+1. Clone Repository
 
 ```bash
 
@@ -176,7 +172,7 @@ git clone <repository-url>
 
 cd Minor\_Project
 
-2\. Backend Setup
+2. Backend Setup
 
 bash
 
@@ -204,7 +200,7 @@ bash
 
 node server.js
 
-3\. Frontend Setup
+3. Frontend Setup
 
 bash
 
@@ -214,7 +210,7 @@ npm install
 
 npm start
 
-4\. Seed Database (Optional)
+4. Seed Database (Optional)
 
 bash
 
@@ -222,34 +218,24 @@ cd backend
 
 node seedData.js
 
+
 🔑 Default Credentials
 
 Admin:
 
 Email: admin@college.com
-
-
-
 Password: password123
-
 
 
 Teacher:
 
 Email: teacher@college.com
-
-
-
 Password: password123
-
 
 
 Students:
 
 Email: student1@college.com to student5@college.com
-
-
-
 Password: password123
 
 
@@ -260,11 +246,7 @@ Authentication:
 
 POST /api/auth/register - User registration
 
-
-
 POST /api/auth/login - User login
-
-
 
 GET /api/auth/check - Verify token
 
@@ -298,11 +280,6 @@ Teacher Dashboard	QR Generator	QR Scanner
 
 https://screenshots/teacher.png	https://screenshots/qr-gen.png	https://screenshots/qr-scan.png
 
-🎥 Demo Video
-
-Watch Demo Video - 2 minute walkthrough of all features
-
-
 
 📄 Project Report
 
@@ -312,17 +289,15 @@ Complete project documentation available in PROJECT\_REPORT.pdf
 
 👨‍💻 Developers
 
-Name: \[Your Name]
+Name: Mohammad Zaid
 
 
 
-Course: BCA Final Year
+Course: BCA, SEM 4
 
 
 
-College: \[Your College Name]
-
-
+College: Khwaja Moinuddin Chishti Language University, Lucknow
 
 Academic Year: 2025-26
 
@@ -330,11 +305,11 @@ Academic Year: 2025-26
 
 📞 Contact
 
-Email: \[your-email@example.com]
+Email: syedmuhmmadzaid@gmail.com
 
 
 
-GitHub: \[your-github-profile]
+GitHub: https://github.com/mohammad-zaid83
 
 
 
