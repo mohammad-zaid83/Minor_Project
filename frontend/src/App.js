@@ -521,7 +521,7 @@ const HomePage = () => (
     {/* College Header */}
     <div className="text-center text-white mb-8">
       <h1 className="text-4xl md:text-5xl font-bold mb-2">KMC University</h1>
-      <p className="text-lg opacity-90">Department of Computer Applications</p>
+      <p className="text-lg opacity-90">Department of Computer Science and Information Technology</p>
     </div>
 
     <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
@@ -531,7 +531,7 @@ const HomePage = () => (
           {/* Replace emoji with logo */}
           <img
             src="/CollegeLogo.png"
-            alt="College Logo"
+            alt="CollegeLogo"
             className="w-12 h-12 rounded-full object-contain"
           />
         </div>
