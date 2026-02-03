@@ -1,139 +1,284 @@
+// backend/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config();
 
-// Helper function for JWT
-const generateToken = (user) => {
-    return jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-    );
-};
-
-// @route   POST /api/auth/register
 // @desc    Register a new user
+// @route   POST /api/auth/register
 // @access  Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role, rollNumber, course, semester } = req.body;
+        const { name, email, password, role, rollNumber, course, semester, phone } = req.body;
 
-        // Check if user exists
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: 'User already exists' });
+        // Validation
+        if (!name || !email || !password) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Name, email and password are required' 
+            });
         }
 
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create user
-        user = new User({
-            name,
-            email,
-            password: hashedPassword,
-            role: role || 'student',
-            rollNumber,
-            course,
-            semester
+        // Check if user exists
+        let user = await User.findOne({ 
+            $or: [
+                { email: email.toLowerCase() },
+                { rollNumber: rollNumber }
+            ]
         });
 
+        if (user) {
+            let field = user.email === email.toLowerCase() ? 'Email' : 'Roll Number';
+            return res.status(400).json({ 
+                success: false,
+                message: `${field} already exists` 
+            });
+        }
+
+        // Create user object
+        const userData = {
+            name,
+            email: email.toLowerCase(),
+            password,
+            role: role || 'student',
+            course: course || 'BCA',
+            phone
+        };
+
+        // Add student-specific fields
+        if (role === 'student' || !role) {
+            if (!rollNumber) {
+                return res.status(400).json({ 
+                    success: false,
+                    message: 'Roll number is required for students' 
+                });
+            }
+            userData.rollNumber = rollNumber;
+            userData.semester = semester || 1;
+        }
+
+        // Create new user
+        user = new User(userData);
         await user.save();
 
-        // Generate token
-        const token = generateToken(user);
+        // Generate JWT token
+        const token = jwt.sign(
+            { 
+                userId: user._id, 
+                email: user.email, 
+                role: user.role 
+            },
+            process.env.JWT_SECRET || 'your_jwt_secret_key_for_development',
+            { expiresIn: '7d' }
+        );
+
+        // Remove password from response
+        const userResponse = user.toObject();
+        delete userResponse.password;
 
         res.status(201).json({
-            message: 'User registered successfully',
+            success: true,
+            message: 'Registration successful',
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                rollNumber: user.rollNumber,
-                course: user.course
-            }
+            user: userResponse
         });
 
     } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Registration Error:', error);
+        
+        // Handle MongoDB duplicate key error
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({ 
+                success: false,
+                message: `${field} already exists` 
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error during registration',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
-// @route   POST /api/auth/login
 // @desc    Login user
+// @route   POST /api/auth/login
 // @access  Public
 router.post('/login', async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password } = req.body;
 
-        // Find user
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+        // Validation
+        if (!email || !password) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Email and password are required' 
+            });
         }
 
-        // Check role
-        if (role && user.role !== role) {
-            return res.status(400).json({ message: `Access denied. You are registered as ${user.role}` });
+        // Find user by email
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Invalid credentials' 
+            });
+        }
+
+        // Check if user is active
+        if (!user.isActive) {
+            return res.status(403).json({ 
+                success: false,
+                message: 'Account is deactivated. Please contact admin.' 
+            });
         }
 
         // Check password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+        const isPasswordValid = await user.comparePassword(password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Invalid credentials' 
+            });
         }
 
-        // Generate token
-        const token = generateToken(user);
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { 
+                userId: user._id, 
+                email: user.email, 
+                role: user.role 
+            },
+            process.env.JWT_SECRET || 'your_jwt_secret_key_for_development',
+            { expiresIn: '7d' }
+        );
+
+        // Remove password from response
+        const userResponse = user.toObject();
+        delete userResponse.password;
 
         res.json({
+            success: true,
             message: 'Login successful',
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                rollNumber: user.rollNumber,
-                course: user.course,
-                semester: user.semester
-            }
+            user: userResponse
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Login Error:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error during login',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
-// @route   GET /api/auth/check
-// @desc    Check authentication
+// @desc    Get current user
+// @route   GET /api/auth/me
 // @access  Private
-router.get('/check', async (req, res) => {
+router.get('/me', async (req, res) => {
     try {
+        // Get token from header
         const token = req.header('Authorization')?.replace('Bearer ', '');
         
         if (!token) {
-            return res.status(401).json({ message: 'No token, authorization denied' });
+            return res.status(401).json({ 
+                success: false,
+                message: 'No token provided' 
+            });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id).select('-password');
+        // Verify token
+        const decoded = jwt.verify(
+            token, 
+            process.env.JWT_SECRET || 'your_jwt_secret_key_for_development'
+        );
 
+        // Find user
+        const user = await User.findById(decoded.userId).select('-password');
+        
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ 
+                success: false,
+                message: 'User not found' 
+            });
         }
 
-        res.json({ user });
+        res.json({
+            success: true,
+            user
+        });
+
     } catch (error) {
-        res.status(401).json({ message: 'Token is not valid' });
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Invalid token' 
+            });
+        }
+        
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ 
+                success: false,
+                message: 'Token expired' 
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
+});
+
+// @desc    Check if email exists
+// @route   POST /api/auth/check-email
+// @access  Public
+router.post('/check-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Email is required' 
+            });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        res.json({
+            success: true,
+            exists: !!user
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error' 
+        });
+    }
+});
+
+// @desc    Logout user (client-side token removal)
+// @route   POST /api/auth/logout
+// @access  Private
+router.post('/logout', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Logged out successfully'
+    });
 });
 
 module.exports = router;
